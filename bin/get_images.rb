@@ -26,13 +26,21 @@ Net::HTTP.start(uri.host) do |http|
 	doc.search("div#mainContent/table[2]//img").each do |img|
 		src = img.attributes['src']
 		alt = img.attributes['alt']
+		# most filenames used on forecast page are slightly different to ones used on legend page
+		# eg legend: w8x15.gif forecast: w8.gif
 		src =~ /.*\/(.*)/
-		filename = $1
-		# GET the image, dave locally and log details
-		puts "Retrieving: #{filename}"
+		orig_filename = $1
+		if orig_filename =~ /(.+)x.+(\..+)/ 
+			local_filename = $1 + $2
+		else
+			local_filename = orig_filename
+		end
+		# GET the image, safe locally and log details
+		puts "Retrieving: #{orig_filename}"
 		res = http.get(src)
-		open(IMG_DIR + filename, 'wb'){ |f| f.write(res.body)}
-		log.puts("'#{filename}'\t=> '#{alt}',")
+		open(IMG_DIR + local_filename, 'wb'){ |f| f.write(res.body)}
+		puts "Saved: #{local_filename}"
+		log.puts("'#{local_filename}'\t=> '#{alt}',")
 	end
 end
 
