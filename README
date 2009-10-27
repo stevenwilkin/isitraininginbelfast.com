@@ -1,3 +1,17 @@
-MET Office forecast for Belfast:
+Single serving site based upon the MET Office forecast for Belfast:
 
 http://www.metoffice.gov.uk/weather/uk/ni/belfast_forecast_weather.html
+
+
+Front-end is a simple PHP script, just set Apache's DocumentRoot to the www/ directory
+
+
+Backend is all Ruby.
+
+Use bin/get_images.rb to retreve all the images used
+Use bin/update_forecast.rb to update the image used in the front-end
+
+
+Example crontab syntax to have the forecast updated every hour:
+
+0 * * * * /var/www/isitraininginbelfast.com/bin/update_forecast.rb
