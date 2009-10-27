@@ -23,7 +23,7 @@ Net::HTTP.start(uri.host) do |http|
 	res = http.get(uri.path)
 	doc = Hpricot(res.body)
 	# find all the images within the specific table
-	doc.search("div#mainContent/table[2]//img").each do |img|
+	doc.search("div#colcentre/table[2]//img").each do |img|
 		src = img.attributes['src']
 		alt = img.attributes['alt']
 		# most filenames used on forecast page are slightly different to ones used on legend page
