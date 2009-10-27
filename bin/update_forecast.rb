@@ -21,7 +21,7 @@ Net::HTTP.start(uri.host) do |http|
 	exit unless res.code == '200'
 	$doc = Hpricot(res.body)
 	# find the first weather symbol in the 5-day forecast
-	img = $doc.search("div.mainSection/table/tr[3]/td[3]/img").first
+	img = $doc.search("div.tableWrapper/table/tr[3]/td[2]/img").first
 	src = img.attributes['src']
 	# get filename, ensure is NAME.EXTENSION format and write to disk
 	if src =~ /.+\/(\w+\.\w+)/
