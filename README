@@ -1,17 +1,19 @@
-Single serving site based upon the MET Office forecast for Belfast:
+Single serving site based upon Yahoo! weather report for Belfast:
 
-http://www.metoffice.gov.uk/weather/uk/ni/belfast_forecast_weather.html
-
-
-Front-end is a simple PHP script, just set Apache's DocumentRoot to the www/ directory
+http://weather.yahoo.com/northern-ireland/belfast/belfast-44544
 
 
-Backend is all Ruby.
+Run bin/update_forecast.rb to fetch the current weather condition
 
-Use bin/get_images.rb to retreve all the images used
-Use bin/update_forecast.rb to update the image used in the front-end
-
-
-Example crontab syntax to have the forecast updated every hour:
+Example crontab syntax to have the weather updated every hour:
 
 0 * * * * /var/www/isitraininginbelfast.com/bin/update_forecast.rb
+
+
+To run the Sinatra app:
+
+rackup ./config.ru -p 9000
+
+Browse to:
+
+http://0.0.0.0:9000/
