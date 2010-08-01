@@ -1,31 +1,28 @@
 #!/usr/bin/env ruby
 
-# get the filename of the weather symbol of the current forecast and write to disk
-# SJW
-
-require 'net/http'
 require 'rubygems'
-require 'hpricot'
+require 'nokogiri'
+require 'open-uri'
 
-# file to output currently forecast weather symbol to
-OUTPUT = File.dirname(__FILE__) + '/../var/forecast.dat'
+# list of possible conditions: http://developer.yahoo.com/weather/#codes
+#doc = Nokogiri::XML(File.read('belfast.rss'))
 
-# the forecast page
-URL = 'http://www.metoffice.gov.uk/weather/uk/ni/belfast_forecast_weather.html'
+VAR = File.expand_path(File.join(File.dirname(__FILE__), '..', 'var'))
+TMP = File.join(VAR, 'forecast.tmp')
+DAT = File.join(VAR, 'forecast.dat')
 
-uri = URI.parse(URL)
+FEED = 'http://weather.yahooapis.com/forecastrss?w=44544'
+doc = Nokogiri::XML(open(FEED))
 
-Net::HTTP.start(uri.host) do |http|
-	# GET the forecast page
-	res = http.get(uri.path)
-	exit unless res.code == '200'
-	$doc = Hpricot(res.body)
-	# find the first weather symbol in the 5-day forecast
-	img = $doc.search("div.tableWrapper/table/tr[3]/td[3]/img").first
-	src = img.attributes['src']
-	# get filename, ensure is NAME.EXTENSION format and write to disk
-	if src =~ /.+\/(\w+\.\w+)/
-		open(OUTPUT, 'w'){|f| f.write($1)}
-	end
+# current weather condition
+condition = doc.xpath('//yweather:condition').attr('text').value
+
+condition =~ /rain|shower|storm/i
+is_raining = !$~.nil?
+
+# write to temp file first and then move it to where the frontend will access it
+File.open(TMP, 'w') do |f|
+	f.print is_raining
 end
 
+system("mv #{TMP} #{DAT}")
