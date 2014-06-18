@@ -4,11 +4,11 @@ require 'redis'
 class App < Sinatra::Base
 	set :logging, true
 
-	get '/' do
+  get '/' do
     uri = URI.parse(ENV["REDISTOGO_URL"] || '')
     redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
-		@is_raining = redis.get('raining') == 'true'
-		erb :index
-	end
+    @is_raining = redis.get('raining') == 'true'
+    erb :index
+  end
 
 end
