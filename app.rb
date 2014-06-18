@@ -1,12 +1,13 @@
 require 'sinatra/base'
+require 'redis'
 
 class App < Sinatra::Base
 	set :logging, true
 
 	get '/' do
-		dat = File.expand_path(File.join(
-			File.dirname(__FILE__), 'var', 'forecast.dat'))
-		@is_raining = File.read(dat).strip == 'true'
+    uri = URI.parse(ENV["REDISTOGO_URL"] || '')
+    redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
+		@is_raining = redis.get('raining') == 'true'
 		erb :index
 	end
 
