@@ -1,15 +1,14 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
+require 'redis'
 require 'nokogiri'
 require 'open-uri'
 
+uri = URI.parse(ENV["REDISTOGO_URL"] || '')
+redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
+
 # list of possible conditions: http://developer.yahoo.com/weather/#codes
 #doc = Nokogiri::XML(File.read('belfast.rss'))
-
-VAR = File.expand_path(File.join(File.dirname(__FILE__), '..', 'var'))
-TMP = File.join(VAR, 'forecast.tmp')
-DAT = File.join(VAR, 'forecast.dat')
 
 FEED = 'http://weather.yahooapis.com/forecastrss?w=44544'
 doc = Nokogiri::XML(open(FEED))
@@ -18,11 +17,5 @@ doc = Nokogiri::XML(open(FEED))
 condition = doc.xpath('//yweather:condition').attr('text').value
 
 condition =~ /rain|shower|storm/i
-is_raining = !$~.nil?
 
-# write to temp file first and then move it to where the frontend will access it
-File.open(TMP, 'w') do |f|
-	f.print is_raining
-end
-
-system("mv #{TMP} #{DAT}")
+redis.set('raining', !$~.nil?)
