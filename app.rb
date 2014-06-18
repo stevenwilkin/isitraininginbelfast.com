@@ -1,6 +1,3 @@
-#!/usr/bin/env ruby
-
-require 'rubygems'
 require 'sinatra'
 
 class App < Sinatra::Base
