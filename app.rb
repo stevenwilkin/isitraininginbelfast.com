@@ -1,10 +1,10 @@
 require 'sinatra/base'
 require 'redis'
-require 'nokogiri'
+require 'json'
 require 'open-uri'
 
 class App < Sinatra::Base
-	set :logging, true
+  set :logging, true
 
   helpers do
     def redis
@@ -15,12 +15,18 @@ class App < Sinatra::Base
     end
 
     def update
-      # list of possible conditions: http://developer.yahoo.com/weather/#codes
-      doc = Nokogiri::XML(open('http://weather.yahooapis.com/forecastrss?w=44544'))
-      # current weather condition
-      condition = doc.xpath('//yweather:condition').attr('text').value
-      condition =~ /rain|shower|storm/i
-      redis.set('raining', !$~.nil?)
+      # list of possible conditions: https://developer.yahoo.com/weather/documentation.html#codes
+      doc = JSON.parse(open('https://query.yahooapis.com/v1/public/yql?q=select%20item.condition%20from%20weather.forecast%20where%20woeid%20%3D%2044544&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys').read)
+      results = doc["query"]["results"]
+
+      if results
+        condition = results["channel"]["item"]["condition"]["text"]
+        condition =~ /rain|shower|storm/i
+        redis.set('raining', !$~.nil?)
+      else
+        # maybe rate-limited?
+        'no results'
+      end
     end
   end
 
